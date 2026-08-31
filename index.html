@@ -38,7 +38,7 @@
 
             try {
                 // Calls the backend script running in the exact same repo folder
-                const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+                const response = await fetch(`/api/search.mjs?q=${encodeURIComponent(query)}`);
                 const data = await response.json();
 
                 if (data.error) {
