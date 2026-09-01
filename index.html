@@ -1,134 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Media Finder</title>
-    <link rel="preconnect" href="https://googleapis.com">
-    <link rel="preconnect" href="https://gstatic.com" crossorigin>
-    <link href="https://googleapis.com/css2?family=Noto+Naskh+Arabic:wght@700&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-    
-    <style>
-        body { 
-            font-family: 'Playfair Display', serif; 
-            font-weight: 400;
-            max-width: 800px; 
-            margin: 40px auto; 
-            padding: 0 20px; 
-            text-align: center; 
-            background: #ffffff; 
-            color: #000000;      
-        }
-        
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Noto Naskh Arabic', serif;
-            font-weight: 700;    
-            color: #000000;
-            margin-bottom: 10px;
-        }
-
-        p {
-            font-family: 'Playfair Display', serif;
-            font-weight: 400;
-            color: #000000;
-        }
-
-        input { 
-            font-family: 'Playfair Display', serif;
-            padding: 10px; 
-            width: 60%; 
-            font-size: 16px; 
-            border: 1px solid #000000; 
-            border-radius: 4px; 
-            background: #ffffff;
-            color: #000000;
-        }
-
-        button { 
-            font-family: 'Playfair Display', serif;
-            padding: 10px 20px; 
-            font-size: 16px; 
-            background: #660000; 
-            color: #ffffff; 
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer; 
-            font-weight: bold;
-            margin-left: 5px;
-        }
-        
-        button:hover {
-            opacity: 0.9;
-        }
-
-        .player-container {
-            margin-top: 30px;
-            position: relative;
-            padding-bottom: 56.25%; /* Force professional 16:9 widescreen ratio */
-            height: 0;
-            overflow: hidden;
-            border-radius: 8px;
-            border: 2px solid #660000; 
-            background: #000;
-        }
-
-        .player-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .tip-box {
-            margin-top: 25px;
-            padding: 15px;
-            border: 1px dashed #660000;
-            border-radius: 6px;
-            text-align: left;
-            font-size: 14px;
-        }
-    </style>
+    <!-- Your existing <head> styles and fonts -->
 </head>
 <body>
 
-    <h1>Web Media Searcher</h1>
-    <p>Watch video streams seamlessly without accounts or log-ins</p>
+    <!-- Your existing search inputs and new buttons -->
+    <input type="text" id="mediaId" placeholder="TMDB or IMDb ID (e.g. 1396 or tt0944947)">
+    <input type="number" id="season" placeholder="Season" value="1" style="width: 15%;">
+    <input type="number" id="episode" placeholder="Episode" value="1" style="width: 15%;">
 
-    <!-- Paste direct asset ID tokens into the input path field -->
-    <input type="text" id="mediaId" placeholder="Enter IMDb ID (e.g., tt1375666 or tt0944947)...">
-    <button onclick="streamAsset()">Stream Now</button>
+    <button onclick="streamAsset('movie')">Movie</button>
+    <button onclick="streamAsset('tv')">TV Show</button>
 
     <div class="player-container">
-        <!-- Direct serverless sandbox iframe player pipeline component -->
         <iframe id="streamEngine" src="about:blank" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
     </div>
 
-    <div class="tip-box">
-        <strong>💡 Direct Streaming Guide:</strong>
-        <p>To pull media onto your site without database tokens, simply input the title's unique **IMDb ID** directly into your player path.</p>
-        <ul>
-            <li>Go to any public film database website and search your favorite title.</li>
-            <li>Copy the unique ID code directly out of your browser's address field (it always starts with a <strong>tt</strong> followed by matching numbers, like <code>tt1375666</code>).</li>
-            <li>Paste it directly into your dashboard stream input and hit click to watch instantly!</li>
-        </ul>
-    </div>
-
+    <!-- REPLACE YOUR OLD SCRIPT WITH THIS -->
     <script>
-        function streamAsset() {
-            const mediaId = document.getElementById('mediaId').value.trim();
-            const player = document.getElementById('streamEngine');
+    function streamAsset(type) {
+        const mediaId = document.getElementById('mediaId').value.trim();
+        const season = document.getElementById('season').value.trim() || "1";
+        const episode = document.getElementById('episode').value.trim() || "1";
+        const player = document.getElementById('streamEngine');
 
-            if (!mediaId) {
-                alert("Please enter a valid TMDB or IMDb ID!");
-                return;
-            }
-
-            // Standard TMDB path structure for vidsrc.sbs
-            const targetStreamUrl = "https://vidsrc.sbs/embed/movie/" + encodeURIComponent(mediaId);
-    
-            player.src = targetStreamUrl;
+        if (!mediaId) {
+            alert("Please enter a valid ID!");
+            return;
         }
+
+        let targetStreamUrl = "";
+
+        if (type === 'tv') {
+            targetStreamUrl = `https://vidsrc.sbs/embed/tv/${encodeURIComponent(mediaId)}/${season}/${episode}`;
+        } else {
+            targetStreamUrl = `https://vidsrc.sbs/embed/movie/${encodeURIComponent(mediaId)}`;
+        }
+
+        player.src = targetStreamUrl;
+    }
     </script>
 </body>
 </html>
