@@ -1,4 +1,4 @@
-// api/search.mjs
+// api/search.mjs hopefully works
 import axios from 'axios';
 
 export default async function handler(req, res) {
