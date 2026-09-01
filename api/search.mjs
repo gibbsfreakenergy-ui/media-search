@@ -13,9 +13,14 @@ export default async function handler(req, res) {
     const API_KEY = process.env.GOOGLE_SEARCH_API_KEY ? process.env.GOOGLE_SEARCH_API_KEY.trim() : ''; 
     const CX_ID = process.env.GOOGLE_SEARCH_CX_ID ? process.env.GOOGLE_SEARCH_CX_ID.trim() : ''; 
 
+    // DIAGNOSTIC CHECK: If Vercel is hiding your keys, this will instantly print in your Vercel logs
+    if (!API_KEY || !CX_ID) {
+        console.error("CRITICAL ERROR: Vercel is missing environment variables!");
+        console.log("API_KEY Exists?", !!API_KEY, "CX_ID Exists?", !!CX_ID);
+        return res.status(500).json({ error: 'Server environment configuration keys are missing inside Vercel.' });
+    }
+
     try {
-        // By separating params from the URL base, axios handles formatting natively.
-        // This guarantees a clean separation and bypasses text string interpolation caching bugs.
         const response = await axios.get("https://googleapis.com", {
             params: {
                 key: API_KEY,
