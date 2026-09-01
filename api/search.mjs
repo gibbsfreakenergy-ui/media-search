@@ -10,19 +10,13 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Search query is required' });
     }
 
-    const API_KEY = process.env.GOOGLE_SEARCH_API_KEY; 
-    const CX_ID = process.env.GOOGLE_SEARCH_CX_ID; 
+    // Strips out any accidental spaces directly in the code logic
+    const API_KEY = process.env.GOOGLE_SEARCH_API_KEY ? process.env.GOOGLE_SEARCH_API_KEY.trim() : ''; 
+    const CX_ID = process.env.GOOGLE_SEARCH_CX_ID ? process.env.GOOGLE_SEARCH_CX_ID.trim() : ''; 
 
     try {
-        // Automatically builds perfectly clean key-value parameters
-        const queryParams = new URLSearchParams({
-            key: API_KEY,
-            cx: CX_ID,
-            q: q
-        });
-
-        // Combined explicitly using standard string concatenation to prevent string interpolation typos
-        const googleUrl = "https://googleapis.com?" + queryParams.toString();
+        // Assembles a raw string directly to prevent internal library auto-encoding mismatches
+        const googleUrl = "https://googleapis.com" + API_KEY + "&cx=" + CX_ID + "&q=" + encodeURIComponent(q);
         
         const response = await axios.get(googleUrl);
         const items = response.data.items || [];
@@ -34,6 +28,7 @@ export default async function handler(req, res) {
 
         return res.status(200).json({ results });
     } catch (error) {
+        // Logs the detailed response payload from Google
         console.error("Google Error:", error.response?.data || error.message);
         return res.status(500).json({ error: 'Search failed to contact Google API' });
     }
