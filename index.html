@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Global Media Finder</title>
-    <!-- Google Fonts Imports -->
     <link rel="preconnect" href="https://googleapis.com">
     <link rel="preconnect" href="https://gstatic.com" crossorigin>
     <link href="https://googleapis.com/css2?family=Noto+Naskh+Arabic:wght@700&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
@@ -17,13 +16,13 @@
             margin: 40px auto; 
             padding: 0 20px; 
             text-align: center; 
-            background: #ffffff; /* White background */
-            color: #000000;      /* Black text */
+            background: #ffffff; 
+            color: #000000;      
         }
         
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Noto Naskh Arabic', serif;
-            font-weight: 700;    /* Bolded headers */
+            font-weight: 700;    
             color: #000000;
             margin-bottom: 10px;
         }
@@ -49,123 +48,87 @@
             font-family: 'Playfair Display', serif;
             padding: 10px 20px; 
             font-size: 16px; 
-            background: #660000; /* Dark red highlight background */
+            background: #660000; 
             color: #ffffff; 
             border: none; 
             border-radius: 4px; 
             cursor: pointer; 
             font-weight: bold;
-            transition: opacity 0.2s;
+            margin-left: 5px;
         }
         
         button:hover {
             opacity: 0.9;
         }
 
-        #results { 
-            margin-top: 20px; 
-            text-align: left; 
-            background: #ffffff; 
-            padding: 20px; 
-            border-radius: 8px; 
-            border: 1px solid #660000; /* Dark red highlight border */
+        .player-container {
+            margin-top: 30px;
+            position: relative;
+            padding-bottom: 56.25%; /* Force professional 16:9 widescreen ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 2px solid #660000; 
+            background: #000;
         }
 
-        .result-item { 
-            margin-bottom: 15px; 
-            padding-bottom: 15px; 
-            border-bottom: 1px solid #660000; /* Dark red highlight separator */
+        .player-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
         }
 
-        .result-item a { 
-            font-family: 'Playfair Display', serif;
-            color: #660000; /* Dark red highlight for links */
-            text-decoration: none; 
-            font-weight: bold; 
-            display: block; 
-            margin-bottom: 5px; 
-        }
-
-        .result-item a:hover {
-            text-decoration: underline;
-        }
-
-        video { 
-            margin-top: 20px; 
-            width: 100%; 
-            max-width: 640px; 
-            border-radius: 8px; 
-            background: #000; 
-            border: 2px solid #660000; /* Dark red highlight frame */
-        }
-        
-        .status-message {
-            color: #660000; /* Highlight color for status / error messages */
+        .tip-box {
+            margin-top: 25px;
+            padding: 15px;
+            border: 1px dashed #660000;
+            border-radius: 6px;
+            text-align: left;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
 
     <h1>Web Media Searcher</h1>
-    <p>Search for audio or video across your configured platforms</p>
+    <p>Watch video streams seamlessly without accounts or log-ins</p>
 
-    <input type="text" id="searchQuery" placeholder="Type a song, video, or topic...">
-    <button onclick="performSearch()">Search</button>
+    <!-- Paste direct asset ID tokens into the input path field -->
+    <input type="text" id="mediaId" placeholder="Enter IMDb ID (e.g., tt1375666 or tt0944947)...">
+    <button onclick="streamAsset()">Stream Now</button>
 
-    <br>
-    <video id="mediaPlayer" controls autoplay></video>
+    <div class="player-container">
+        <!-- Direct serverless sandbox iframe player pipeline component -->
+        <iframe id="streamEngine" src="about:blank" frameborder="0" allowfullscreen></iframe>
+    </div>
 
-    <div id="results">Your results will show up here...</div>
+    <div class="tip-box">
+        <strong>💡 Direct Streaming Guide:</strong>
+        <p>To pull media onto your site without database tokens, simply input the title's unique **IMDb ID** directly into your player path.</p>
+        <ul>
+            <li>Go to any public film database website and search your favorite title.</li>
+            <li>Copy the unique ID code directly out of your browser's address field (it always starts with a <strong>tt</strong> followed by matching numbers, like <code>tt1375666</code>).</li>
+            <li>Paste it directly into your dashboard stream input and hit click to watch instantly!</li>
+        </ul>
+    </div>
 
     <script>
-        async function performSearch() {
-            const query = document.getElementById('searchQuery').value;
-            const resultsDiv = document.getElementById('results');
-            const player = document.getElementById('mediaPlayer');
+        function streamAsset() {
+            const mediaId = document.getElementById('mediaId').value.trim();
+            const player = document.getElementById('streamEngine');
 
-            if (!query) return alert("Please enter a search term!");
-            resultsDiv.innerHTML = "<span class='status-message'>Searching the web via Google API...</span>";
-
-            try {
-                // Calls the backend script running in the exact same repo folder (.mjs route)
-                const response = await fetch(`/api/search.mjs?q=${encodeURIComponent(query)}`);
-                const data = await response.json();
-
-                if (data.error) {
-                    resultsDiv.innerHTML = `<span class="status-message">Error: ${data.error}</span>`;
-                    return;
-                }
-
-                if (!data.results || data.results.length === 0) {
-                    resultsDiv.innerHTML = "<span class='status-message'>No matching media sources found.</span>";
-                    return;
-                }
-
-                resultsDiv.innerHTML = ""; // Clear status text
-
-                data.results.forEach(item => {
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'result-item';
-
-                    // Create a playable link button
-                    const playButton = document.createElement('button');
-                    playButton.innerText = "Load into Player";
-                    playButton.style.padding = "5px 10px";
-                    playButton.style.fontSize = "14px";
-                    playButton.onclick = () => {
-                        player.src = item.url;
-                        player.play();
-                    };
-
-                    itemDiv.innerHTML = `<a href="${item.url}" target="_blank">${item.title}</a>`;
-                    itemDiv.appendChild(playButton);
-                    resultsDiv.appendChild(itemDiv);
-                });
-
-            } catch (err) {
-                console.error(err);
-                resultsDiv.innerHTML = "<span class='status-message'>Failed to connect to backend server.</span>";
+            if (!mediaId) {
+                alert("Please drop a valid IMDb ID code into the player bar!");
+                return;
             }
+
+            // Maps standard parameters natively into a direct stream gateway, bypassing scraper bot locks
+            const targetStreamUrl = "https://vidsrc.xyz" + encodeURIComponent(mediaId);
+            
+            // Injects the direct asset endpoint frame into your page window
+            player.src = targetStreamUrl;
         }
     </script>
 </body>
