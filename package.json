@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
-    "duck-duck-scrape": "^2.2.0"
+    "axios": "^1.7.0"
   }
 }
