@@ -1,5 +1,5 @@
 // api/search.mjs
-import axios from 'axios';
+import { search } from 'duck-duck-scrape';
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -10,33 +10,21 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Search query is required' });
     }
 
-    const API_KEY = process.env.GOOGLE_SEARCH_API_KEY ? process.env.GOOGLE_SEARCH_API_KEY.trim() : ''; 
-    const CX_ID = process.env.GOOGLE_SEARCH_CX_ID ? process.env.GOOGLE_SEARCH_CX_ID.trim() : ''; 
-
-    if (!API_KEY || !CX_ID) {
-        return res.status(500).json({ error: 'Server environment configuration keys are missing inside Vercel.' });
-    }
-
     try {
-        // FIXED ENDPOINT URL ADDRESS BELOW
-        const response = await axios.get("https://customsearch.googleapis.com/customsearch/v1", {
-            params: {
-                key: API_KEY,
-                cx: CX_ID,
-                q: q
-            }
+        // Searches the web for your query terms
+        const searchResults = await search(q, {
+            safeSearch: 'moderate'
         });
-        
-        const items = response.data.items || [];
 
-        const results = items.map(item => ({
+        // Maps the web search results into names and website addresses
+        const results = searchResults.results.map(item => ({
             title: item.title,
-            url: item.link
+            url: item.url
         }));
 
         return res.status(200).json({ results });
     } catch (error) {
-        console.error("Google Error:", error.response?.data || error.message);
-        return res.status(500).json({ error: 'Search failed to contact Google API' });
+        console.error("Search Engine Error:", error.message);
+        return res.status(500).json({ error: 'Failed to fetch open web results' });
     }
 }
