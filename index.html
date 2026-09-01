@@ -1,45 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Your existing <head> styles and fonts -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Media Finder</title>
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Noto+Naskh+Arabic:wght@700&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        body { 
+            font-family: 'Playfair Display', serif; 
+            font-weight: 400;
+            max-width: 800px; 
+            margin: 40px auto; 
+            padding: 0 20px; 
+            text-align: center; 
+            background: #ffffff; 
+            color: #000000;      
+        }
+        
+        h1 {
+            font-family: 'Noto Naskh Arabic', serif;
+            font-weight: 700;    
+            color: #000000;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-family: 'Playfair Display', serif;
+            font-weight: 400;
+            color: #000000;
+        }
+
+        .controls-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        input { 
+            font-family: 'Playfair Display', serif;
+            padding: 10px; 
+            font-size: 16px; 
+            border: 1px solid #000000; 
+            border-radius: 4px; 
+            background: #ffffff;
+            color: #000000;
+            box-sizing: border-box;
+        }
+
+        #mediaId {
+            flex: 2;
+            min-width: 220px;
+        }
+
+        .number-input {
+            width: 75px;
+            text-align: center;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 5px;
+        }
+
+        button { 
+            font-family: 'Playfair Display', serif;
+            padding: 10px 18px; 
+            font-size: 16px; 
+            background: #660000; 
+            color: #ffffff; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-weight: bold;
+            transition: opacity 0.2s ease;
+        }
+        
+        button:hover {
+            opacity: 0.85;
+        }
+
+        .player-container {
+            margin-top: 30px;
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 2px solid #660000; 
+            background: #000;
+        }
+
+        .player-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .tip-box {
+            margin-top: 25px;
+            padding: 15px;
+            border: 1px dashed #660000;
+            border-radius: 6px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .tip-box ul {
+            margin: 5px 0 0 20px;
+            padding: 0;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Your existing search inputs and new buttons -->
-    <input type="text" id="mediaId" placeholder="TMDB or IMDb ID (e.g. 1396 or tt0944947)">
-    <input type="number" id="season" placeholder="Season" value="1" style="width: 15%;">
-    <input type="number" id="episode" placeholder="Episode" value="1" style="width: 15%;">
+    <h1>Web Media Searcher</h1>
+    <p>Watch video streams seamlessly without accounts or log-ins</p>
 
-    <button onclick="streamAsset('movie')">Movie</button>
-    <button onclick="streamAsset('tv')">TV Show</button>
+    <div class="controls-container">
+        <input type="text" id="mediaId" placeholder="Enter TMDB or IMDb ID...">
+        <input type="number" id="season" class="number-input" placeholder="Szn" value="1" min="1">
+        <input type="number" id="episode" class="number-input" placeholder="Eps" value="1" min="1">
+        
+        <div class="button-group">
+            <button onclick="streamAsset('movie')">Movie</button>
+            <button onclick="streamAsset('tv')">TV Show</button>
+        </div>
+    </div>
 
     <div class="player-container">
         <iframe id="streamEngine" src="about:blank" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
     </div>
 
-    <!-- REPLACE YOUR OLD SCRIPT WITH THIS -->
+    <div class="tip-box">
+        <strong>💡 Direct Streaming Guide:</strong>
+        <ul>
+            <li><strong>Movies:</strong> Enter a TMDB ID (e.g., <code>533535</code>) or IMDb ID (e.g., <code>tt1375666</code>) and click <strong>Movie</strong>.</li>
+            <li><strong>TV Shows:</strong> Enter the ID, specify the season and episode numbers, and click <strong>TV Show</strong>.</li>
+        </ul>
+    </div>
+
     <script>
-    function streamAsset(type) {
-        const mediaId = document.getElementById('mediaId').value.trim();
-        const season = document.getElementById('season').value.trim() || "1";
-        const episode = document.getElementById('episode').value.trim() || "1";
-        const player = document.getElementById('streamEngine');
+        function streamAsset(type) {
+            const mediaId = document.getElementById('mediaId').value.trim();
+            const season = document.getElementById('season').value.trim() || "1";
+            const episode = document.getElementById('episode').value.trim() || "1";
+            const player = document.getElementById('streamEngine');
 
-        if (!mediaId) {
-            alert("Please enter a valid ID!");
-            return;
+            if (!mediaId) {
+                alert("Please drop a valid TMDB or IMDb ID into the player bar!");
+                return;
+            }
+
+            let targetStreamUrl = "";
+
+            if (type === 'tv') {
+                targetStreamUrl = `https://vidsrc.sbs/embed/tv/${encodeURIComponent(mediaId)}/${season}/${episode}`;
+            } else {
+                targetStreamUrl = `https://vidsrc.sbs/embed/movie/${encodeURIComponent(mediaId)}`;
+            }
+
+            player.src = targetStreamUrl;
         }
-
-        let targetStreamUrl = "";
-
-        if (type === 'tv') {
-            targetStreamUrl = `https://vidsrc.sbs/embed/tv/${encodeURIComponent(mediaId)}/${season}/${episode}`;
-        } else {
-            targetStreamUrl = `https://vidsrc.sbs/embed/movie/${encodeURIComponent(mediaId)}`;
-        }
-
-        player.src = targetStreamUrl;
-    }
     </script>
 </body>
 </html>
