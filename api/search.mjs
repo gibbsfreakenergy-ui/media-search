@@ -1,5 +1,5 @@
 // api/search.mjs
-import { search } from 'duck-duck-scrape';
+import { search, SafeSearchType } from 'duck-duck-scrape';
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,12 +11,11 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Searches the web for your query terms
+        // SafeSearchType.MODERATE is the exact required property type layout
         const searchResults = await search(q, {
-            safeSearch: 'moderate'
+            safeSearch: SafeSearchType.MODERATE
         });
 
-        // Maps the web search results into names and website addresses
         const results = searchResults.results.map(item => ({
             title: item.title,
             url: item.url
