@@ -120,14 +120,13 @@
             const player = document.getElementById('streamEngine');
 
             if (!mediaId) {
-                alert("Please drop a valid IMDb ID code into the player bar!");
+                alert("Please enter a valid TMDB or IMDb ID!");
                 return;
             }
 
-            // Maps standard parameters natively into a direct stream gateway, bypassing scraper bot locks
-            const targetStreamUrl = "https://vidsrc.xyz" + encodeURIComponent(mediaId);
-            
-            // Injects the direct asset endpoint frame into your page window
+            // Standard TMDB path structure for vidsrc.sbs
+            const targetStreamUrl = "https://vidsrc.sbs/embed/movie/" + encodeURIComponent(mediaId);
+    
             player.src = targetStreamUrl;
         }
     </script>
