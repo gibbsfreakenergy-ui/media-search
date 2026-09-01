@@ -33,12 +33,53 @@
             color: #000000;
         }
 
+        .type-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .type-btn {
+            font-family: 'Playfair Display', serif;
+            padding: 8px 24px;
+            font-size: 15px;
+            background: #ffffff;
+            color: #660000;
+            border: 2px solid #660000;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .type-btn.active {
+            background: #660000;
+            color: #ffffff;
+        }
+
         .controls-container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
+            align-items: flex-end;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .input-group label {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 4px;
+            color: #660000;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         input { 
@@ -50,26 +91,33 @@
             background: #ffffff;
             color: #000000;
             box-sizing: border-box;
+            height: 42px;
         }
 
         #mediaId {
-            flex: 2;
-            min-width: 220px;
+            width: 280px;
         }
 
         .number-input {
-            width: 75px;
+            width: 80px;
             text-align: center;
         }
 
-        .button-group {
-            display: flex;
-            gap: 5px;
+        /* Smoothly hides/reveals TV parameters */
+        .tv-only {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        button { 
+        .tv-only.visible {
+            display: flex;
+            opacity: 1;
+        }
+
+        .submit-btn { 
             font-family: 'Playfair Display', serif;
-            padding: 10px 18px; 
+            padding: 10px 24px; 
             font-size: 16px; 
             background: #660000; 
             color: #ffffff; 
@@ -77,10 +125,11 @@
             border-radius: 4px; 
             cursor: pointer; 
             font-weight: bold;
+            height: 42px;
             transition: opacity 0.2s ease;
         }
         
-        button:hover {
+        .submit-btn:hover {
             opacity: 0.85;
         }
 
@@ -123,15 +172,28 @@
     <h1>Web Media Searcher</h1>
     <p>Watch video streams seamlessly without accounts or log-ins</p>
 
+    <div class="type-selector">
+        <button id="movieToggle" class="type-btn active" onclick="setMediaType('movie')">Movie</button>
+        <button id="tvToggle" class="type-btn" onclick="setMediaType('tv')">TV Show</button>
+    </div>
+
     <div class="controls-container">
-        <input type="text" id="mediaId" placeholder="Enter TMDB or IMDb ID...">
-        <input type="number" id="season" class="number-input" placeholder="Szn" value="1" min="1">
-        <input type="number" id="episode" class="number-input" placeholder="Eps" value="1" min="1">
-        
-        <div class="button-group">
-            <button onclick="streamAsset('movie')">Movie</button>
-            <button onclick="streamAsset('tv')">TV Show</button>
+        <div class="input-group">
+            <label for="mediaId" id="idLabel">Movie ID Code</label>
+            <input type="text" id="mediaId" placeholder="TMDB or IMDb ID...">
         </div>
+
+        <div class="input-group tv-only" id="seasonGroup">
+            <label for="season">Season</label>
+            <input type="number" id="season" class="number-input" placeholder="1" value="1" min="1">
+        </div>
+
+        <div class="input-group tv-only" id="episodeGroup">
+            <label for="episode">Episode</label>
+            <input type="number" id="episode" class="number-input" placeholder="1" value="1" min="1">
+        </div>
+        
+        <button class="submit-btn" onclick="streamAsset()">Stream Now</button>
     </div>
 
     <div class="player-container">
@@ -141,26 +203,51 @@
     <div class="tip-box">
         <strong>💡 Direct Streaming Guide:</strong>
         <ul>
-            <li><strong>Movies:</strong> Enter a TMDB ID (e.g., <code>533535</code>) or IMDb ID (e.g., <code>tt1375666</code>) and click <strong>Movie</strong>.</li>
-            <li><strong>TV Shows:</strong> Enter the ID, specify the season and episode numbers, and click <strong>TV Show</strong>.</li>
+            <li><strong>Movies:</strong> Paste the ID (e.g., <code>533535</code> or <code>tt1375666</code>) and press <strong>Stream Now</strong>.</li>
+            <li><strong>TV Shows:</strong> Click the <strong>TV Show</strong> toggle above to reveal the Season and Episode controls.</li>
         </ul>
     </div>
 
     <script>
-        function streamAsset(type) {
+        let currentType = 'movie';
+
+        function setMediaType(type) {
+            currentType = type;
+            const movieToggle = document.getElementById('movieToggle');
+            const tvToggle = document.getElementById('tvToggle');
+            const seasonGroup = document.getElementById('seasonGroup');
+            const episodeGroup = document.getElementById('episodeGroup');
+            const idLabel = document.getElementById('idLabel');
+
+            if (type === 'tv') {
+                movieToggle.classList.remove('active');
+                tvToggle.classList.add('active');
+                seasonGroup.classList.add('visible');
+                episodeGroup.classList.add('visible');
+                idLabel.innerText = "Show ID Code";
+            } else {
+                tvToggle.classList.remove('active');
+                movieToggle.classList.add('active');
+                seasonGroup.classList.remove('visible');
+                episodeGroup.classList.remove('visible');
+                idLabel.innerText = "Movie ID Code";
+            }
+        }
+
+        function streamAsset() {
             const mediaId = document.getElementById('mediaId').value.trim();
             const season = document.getElementById('season').value.trim() || "1";
             const episode = document.getElementById('episode').value.trim() || "1";
             const player = document.getElementById('streamEngine');
 
             if (!mediaId) {
-                alert("Please drop a valid TMDB or IMDb ID into the player bar!");
+                alert("Please drop a valid TMDB or IMDb ID code into the player bar!");
                 return;
             }
 
             let targetStreamUrl = "";
 
-            if (type === 'tv') {
+            if (currentType === 'tv') {
                 targetStreamUrl = `https://vidsrc.sbs/embed/tv/${encodeURIComponent(mediaId)}/${season}/${episode}`;
             } else {
                 targetStreamUrl = `https://vidsrc.sbs/embed/movie/${encodeURIComponent(mediaId)}`;
