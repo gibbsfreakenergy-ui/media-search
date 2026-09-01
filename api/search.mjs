@@ -1,4 +1,4 @@
-// api/search.mjs hopefully works
+// api/search.mjs
 import axios from 'axios';
 
 export default async function handler(req, res) {
@@ -14,10 +14,16 @@ export default async function handler(req, res) {
     const CX_ID = process.env.GOOGLE_SEARCH_CX_ID ? process.env.GOOGLE_SEARCH_CX_ID.trim() : ''; 
 
     try {
-        // Notice the question mark "?" right after /v1
-        const googleUrl = "https://googleapis.com" + API_KEY + "&cx=" + CX_ID + "&q=" + encodeURIComponent(q);
+        // By separating params from the URL base, axios handles formatting natively.
+        // This guarantees a clean separation and bypasses text string interpolation caching bugs.
+        const response = await axios.get("https://googleapis.com", {
+            params: {
+                key: API_KEY,
+                cx: CX_ID,
+                q: q
+            }
+        });
         
-        const response = await axios.get(googleUrl);
         const items = response.data.items || [];
 
         const results = items.map(item => ({
