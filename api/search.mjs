@@ -13,15 +13,13 @@ export default async function handler(req, res) {
     const API_KEY = process.env.GOOGLE_SEARCH_API_KEY ? process.env.GOOGLE_SEARCH_API_KEY.trim() : ''; 
     const CX_ID = process.env.GOOGLE_SEARCH_CX_ID ? process.env.GOOGLE_SEARCH_CX_ID.trim() : ''; 
 
-    // DIAGNOSTIC CHECK: If Vercel is hiding your keys, this will instantly print in your Vercel logs
     if (!API_KEY || !CX_ID) {
-        console.error("CRITICAL ERROR: Vercel is missing environment variables!");
-        console.log("API_KEY Exists?", !!API_KEY, "CX_ID Exists?", !!CX_ID);
         return res.status(500).json({ error: 'Server environment configuration keys are missing inside Vercel.' });
     }
 
     try {
-        const response = await axios.get("https://googleapis.com", {
+        // FIXED ENDPOINT URL ADDRESS BELOW
+        const response = await axios.get("https://customsearch.googleapis.com/customsearch/v1", {
             params: {
                 key: API_KEY,
                 cx: CX_ID,
