@@ -14,16 +14,17 @@ export default async function handler(req, res) {
     const CX_ID = process.env.GOOGLE_SEARCH_CX_ID; 
 
     try {
-        // Automatically builds clean, structured parameters for Google
+        // Automatically builds perfectly clean key-value parameters
         const queryParams = new URLSearchParams({
             key: API_KEY,
             cx: CX_ID,
             q: q
         });
 
-        const googleUrl = `https://googleapis.com{queryParams.toString()}`;
-        const response = await axios.get(googleUrl);
+        // Combined explicitly using standard string concatenation to prevent string interpolation typos
+        const googleUrl = "https://googleapis.com?" + queryParams.toString();
         
+        const response = await axios.get(googleUrl);
         const items = response.data.items || [];
 
         const results = items.map(item => ({
@@ -33,7 +34,6 @@ export default async function handler(req, res) {
 
         return res.status(200).json({ results });
     } catch (error) {
-        // Logs the exact Google response so we can see what Google complained about
         console.error("Google Error:", error.response?.data || error.message);
         return res.status(500).json({ error: 'Search failed to contact Google API' });
     }
